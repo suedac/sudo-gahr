@@ -1,66 +1,57 @@
-# Empty JavaScript template
+# Cheapest ASIN Filter
 
-<!-- This is an Apify template readme -->
-
-Start a new [web scraping](https://apify.com/web-scraping) project quickly and easily in JavaScript (Node.js) with our empty project template. It provides a basic structure for building an Actor with [Apify SDK](https://docs.apify.com/sdk/js/) and allows you to easily add your own functionality.
-
-## Included features
-
-- **[Apify SDK](https://docs.apify.com/sdk/js/)** - toolkit for building [Actors](https://apify.com/actors)
-- **[Crawlee](https://crawlee.dev/)** - web scraping and browser automation library
+An Apify Actor that takes an Amazon scraper dataset and returns only the cheapest offer per ASIN.
 
 ## How it works
 
-This template is useful when you're already familiar with the [Apify SDK](https://docs.apify.com/sdk/js) and [Crawlee](https://crawlee.dev/) and want to start with a clean slate. It does not include `puppeteer` or `playwright` so install them manually and update the Dockerfile if you need them.
+1. Fetches all items from the provided dataset
+2. Groups offers by ASIN
+3. For each ASIN, keeps only the offer with the lowest price
+4. Pushes the filtered results to the default dataset
 
-## Resources
+## Input
 
-- [Node.js tutorials](https://docs.apify.com/academy/node-js) in Academy
-- [Video guide on getting data using Apify API](https://www.youtube.com/watch?v=ViYYDHSBAKM)
-- [Integration with Make](https://apify.com/integrations), GitHub, Zapier, Google Drive, and other apps
-- A short guide on how to create Actors using code templates:
+| Field | Type | Description |
+|---|---|---|
+| `datasetId` | string | The ID of the dataset from the Amazon scraper run. |
 
-[web scraper template](https://www.youtube.com/watch?v=u-i-Korzf8w)
+## Output
 
+Each dataset item represents the cheapest offer found for a given ASIN:
 
-## Getting started
+```json
+{
+    "title": "Apple iPhone 15 128GB Black Unlocked",
+    "asin": "B0CHX3QBCH",
+    "itemUrl": "https://www.amazon.com/...",
+    "description": "...",
+    "keyword": "iphone",
+    "sellerName": "Amazon.com",
+    "offer": "$699.00",
+    "price": 699
+}
+```
 
-For complete information [see this article](https://docs.apify.com/platform/actors/development#build-actor-locally). To run the Actor use the following command:
+## Running locally
+
+Requires an [Apify account](https://console.apify.com).
 
 ```bash
+npm install
 apify run
 ```
 
-## Deploy to Apify
+Input is read from `.actor/INPUT.json`. Example:
 
-### Connect Git repository to Apify
+```json
+{
+    "datasetId": "your-dataset-id-here"
+}
+```
 
-If you've created a Git repository for the project, you can easily connect to Apify:
+## Running on Apify
 
-1. Go to [Actor creation page](https://console.apify.com/actors/new)
-2. Click on **Link Git Repository** button
-
-### Push project on your local machine to Apify
-
-You can also deploy the project on your local machine to Apify without the need for the Git repository.
-
-1. Log in to Apify. You will need to provide your [Apify API Token](https://console.apify.com/account/integrations) to complete this action.
-
-    ```bash
-    apify login
-    ```
-
-2. Deploy your Actor. This command will deploy and build the Actor on the Apify Platform. You can find your newly created Actor under [Actors -> My Actors](https://console.apify.com/actors?tab=my).
-
-    ```bash
-    apify push
-    ```
-
-## Documentation reference
-
-To learn more about Apify and Actors, take a look at the following resources:
-
-- [Apify SDK for JavaScript documentation](https://docs.apify.com/sdk/js)
-- [Apify SDK for Python documentation](https://docs.apify.com/sdk/python)
-- [Apify Platform documentation](https://docs.apify.com/platform)
-- [Join our developer community on Discord](https://discord.com/invite/jyEM2PRvMU)
+```bash
+apify push
+apify call
+```
