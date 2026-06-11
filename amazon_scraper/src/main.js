@@ -37,8 +37,8 @@ const crawler = new CheerioCrawler({
 });
 log.info("Starting the crawl.");
 const logInterval = setInterval(() => {
-  console.log("ASIN counts:", JSON.stringify(asinCounts));
-  console.log("Run stats:", JSON.stringify(runStats));
+  log.info(`ASIN counts: ${JSON.stringify(asinCounts)}`);
+  log.info(`Run stats: ${JSON.stringify(runStats)}`);
 }, 10000);
 Actor.on("migrating", async () => {
   await Actor.setValue("ASIN_COUNTS", asinCounts);
