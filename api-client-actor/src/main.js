@@ -1,6 +1,4 @@
-import { Actor } from 'apify';
-import { asinCounts } from './state.js';
-
+import { Actor, log } from 'apify';
 await Actor.init();
 
 const { memory, useClient, fields, maxItems } = await Actor.getInput();
@@ -11,17 +9,16 @@ const TOKEN = process.env.APIFY_TOKEN;
 let datasetId;
 
 if (useClient) {
-    //if useclient returns true
     const run = await Actor.apifyClient.task(TASK_ID).call({ memory });
     datasetId = run.defaultDatasetId;
 } else {
     // Use the raw API - start the run
-    const startRes = await fetch(
-        `https://api.apify.com/v2/actor-tasks/${TASK_ID}/runs?token=${TOKEN}&memory=${memory}`,
-        { method: 'POST' },
-    );
+    const startRes = await fetch(url, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${TOKEN}` },
+    });
     const responseJson = await startRes.json();
-    console.log('API response:', JSON.stringify(responseJson));
+    log.info('API response:', { response: responseJson });
     const { data: runData } = responseJson;
     const runId = runData.id;
 

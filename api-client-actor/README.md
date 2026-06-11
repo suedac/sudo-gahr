@@ -1,66 +1,57 @@
-# Empty JavaScript template
+# API Client Actor
 
-<!-- This is an Apify template readme -->
-
-Start a new [web scraping](https://apify.com/web-scraping) project quickly and easily in JavaScript (Node.js) with our empty project template. It provides a basic structure for building an Actor with [Apify SDK](https://docs.apify.com/sdk/js/) and allows you to easily add your own functionality.
-
-## Included features
-
-- **[Apify SDK](https://docs.apify.com/sdk/js/)** - toolkit for building [Actors](https://apify.com/actors)
-- **[Crawlee](https://crawlee.dev/)** - web scraping and browser automation library
+An Apify Actor that runs the Academy Amazon Scraper task and exports the results as a CSV file. Supports both the Apify JavaScript client and the raw Apify REST API.
 
 ## How it works
 
-This template is useful when you're already familiar with the [Apify SDK](https://docs.apify.com/sdk/js) and [Crawlee](https://crawlee.dev/) and want to start with a clean slate. It does not include `puppeteer` or `playwright` so install them manually and update the Dockerfile if you need them.
+1. Starts the Amazon scraper task using either the Apify JS client or the raw REST API (controlled by the `useClient` input)
+2. Waits for the task run to finish
+3. Fetches the dataset items, filtered to the specified fields
+4. Saves the result as a CSV file to the key-value store under `OUTPUT.csv`
 
-## Resources
+## Input
 
-- [Node.js tutorials](https://docs.apify.com/academy/node-js) in Academy
-- [Video guide on getting data using Apify API](https://www.youtube.com/watch?v=ViYYDHSBAKM)
-- [Integration with Make](https://apify.com/integrations), GitHub, Zapier, Google Drive, and other apps
-- A short guide on how to create Actors using code templates:
+| Field | Type | Description |
+|---|---|---|
+| `memory` | integer | Memory in MB to allocate to the task run. Must be a power of 2 (e.g. 256, 512, 1024). |
+| `useClient` | boolean | If `true`, uses the Apify JS client. If `false`, uses the raw REST API. |
+| `fields` | array of strings | Fields to include in the CSV output. All other fields are omitted. |
+| `maxItems` | integer | Maximum number of items to include in the output. |
 
-[web scraper template](https://www.youtube.com/watch?v=u-i-Korzf8w)
+## Output
 
+A CSV file saved to the key-value store under the key `OUTPUT.csv`. Each row represents one offer from the Amazon scraper, with columns matching the `fields` input.
 
-## Getting started
+Example with `fields: ["title", "offer", "sellerName"]`:
 
-For complete information [see this article](https://docs.apify.com/platform/actors/development#build-actor-locally). To run the Actor use the following command:
+```csv
+title,offer,sellerName
+Apple iPhone 15 128GB Black Unlocked,$699.00,Amazon.com
+```
+
+## Running locally
+
+Requires an [Apify account](https://console.apify.com) and a valid `APIFY_TOKEN` environment variable.
 
 ```bash
+npm install
 apify run
 ```
 
-## Deploy to Apify
+Input is read from `.actor/INPUT.json`. Example:
 
-### Connect Git repository to Apify
+```json
+{
+    "memory": 512,
+    "useClient": true,
+    "fields": ["title", "offer", "sellerName"],
+    "maxItems": 10
+}
+```
 
-If you've created a Git repository for the project, you can easily connect to Apify:
+## Running on Apify
 
-1. Go to [Actor creation page](https://console.apify.com/actors/new)
-2. Click on **Link Git Repository** button
-
-### Push project on your local machine to Apify
-
-You can also deploy the project on your local machine to Apify without the need for the Git repository.
-
-1. Log in to Apify. You will need to provide your [Apify API Token](https://console.apify.com/account/integrations) to complete this action.
-
-    ```bash
-    apify login
-    ```
-
-2. Deploy your Actor. This command will deploy and build the Actor on the Apify Platform. You can find your newly created Actor under [Actors -> My Actors](https://console.apify.com/actors?tab=my).
-
-    ```bash
-    apify push
-    ```
-
-## Documentation reference
-
-To learn more about Apify and Actors, take a look at the following resources:
-
-- [Apify SDK for JavaScript documentation](https://docs.apify.com/sdk/js)
-- [Apify SDK for Python documentation](https://docs.apify.com/sdk/python)
-- [Apify Platform documentation](https://docs.apify.com/platform)
-- [Join our developer community on Discord](https://discord.com/invite/jyEM2PRvMU)
+```bash
+apify push
+apify call
+```

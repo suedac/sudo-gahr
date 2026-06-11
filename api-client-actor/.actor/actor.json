@@ -2,13 +2,9 @@
 	"$schema": "https://apify.com/schemas/v1/actor.ide.json",
 	"actorSpecification": 1,
 	"name": "api-client-actor",
-	"title": "Empty JavaScript project",
-	"description": "Empty project in JavaScript.",
+	"title": "api client actor",
+	"description": "Runs an Amazon scraper task via the Apify API or JS client, then exports the results as a CSV file to the key-value store.",
 	"version": "0.0",
 	"buildTag": "latest",
-	"meta": {
-		"templateId": "js-empty",
-		"generatedBy": "<FILL-IN-MODEL>"
-	},
 	"dockerfile": "../Dockerfile"
 }
