@@ -1,6 +1,6 @@
 import { createCheerioRouter, Dataset } from 'crawlee';
 import { BASE_URL, labels } from './constants.js';
-
+import { asinCounts, runStats } from './state.js';
 export const router = createCheerioRouter();
 
 router.addHandler(labels.START, async ({ $, crawler, request }) => {
@@ -49,15 +49,25 @@ router.addHandler(labels.PRODUCT, async ({ $, crawler, request }) => {
     }]);
 });
 
-router.addHandler(labels.OFFERS, async ({ $, request }) => {
+router.addHandler(labels.OFFERS, async ({ $, request, crawler }) => {
     const { data } = request.userData;
 
     const price = $('.a-price .a-offscreen').first().text().trim();
     const sellerName = $('#sellerProfileTriggerId, #merchant-info a').first().text().trim();
 
+    const requestQueue = await crawler.getRequestQueue();
+    const queueInfo = await requestQueue.getInfo();
+
+    const asin = data.asin;
+    asinCounts[asin] = (asinCounts[asin] ?? 0) + 1;
+
     await Dataset.pushData({
         ...data,
         sellerName,
         offer: price,
+        dateHandled: new Date().toISOString(),
+        numberOfRetries: request.retryCount,
+        currentPendingRequests: queueInfo.pendingRequestCount,
     });
+    runStats.totalSaved++;
 });

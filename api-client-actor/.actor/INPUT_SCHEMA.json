@@ -1,0 +1,32 @@
+{
+    "title": "API & Client Actor",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "memory": {
+            "title": "Memory (MB)",
+            "type": "integer",
+            "description": "Memory to allocate to the Amazon Actor run. Must be a power of 2.",
+            "editor": "number"
+        },
+        "useClient": {
+            "title": "Use JS client",
+            "type": "boolean",
+            "description": "If true, uses the Apify JS client. If false, uses the raw API.",
+            "editor": "checkbox"
+        },
+        "fields": {
+            "title": "Fields",
+            "type": "array",
+            "description": "Fields to include in the output. All others are omitted.",
+            "editor": "stringList"
+        },
+        "maxItems": {
+            "title": "Max items",
+            "type": "integer",
+            "description": "Maximum number of items to return.",
+            "editor": "number"
+        }
+    },
+    "required": ["memory", "useClient", "fields", "maxItems"]
+}
