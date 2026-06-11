@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Dependencies
+node_modules/
+
+# Apify local development
+.actor/INPUT.json
+apify_storage/
+
+# Environment variables
+.env
+
+# Logs
+*.log
