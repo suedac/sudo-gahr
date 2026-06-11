@@ -6,7 +6,7 @@
 
 **How do you allocate more CPU for an Actor's run?**
 
-You can set it up indirectly by setting a higher memory limit — Apify allocates 1 CPU core per 4 GB of memory.
+You can set it up indirectly by setting a higher memory limit — Apify allocates 1 vCPU per 1024 MB (1 GB) of memory. For example, 256 MB = 0.25 vCPU, 512 MB = 0.5 vCPU, 1024 MB = 1 vCPU.
 
 ---
 
@@ -47,7 +47,9 @@ For regular Actors, probably not. If an Actor errors, blindly restarting it usua
 
 **Migrations happen randomly, but by aborting gracefully, you can simulate a similar situation. What changes, and what remains the same for the restarted Actor's run?**
 
-The Actor stopped but saved the data (e.g. `ASIN_COUNTER`) to the key-value store. On the next run, it pulled that value back and restored its state from it.
+When an Actor migrates, it gets a new container — so all in-memory state (variables, counters, etc.) is lost. What remains the same are the persistent storages: the dataset, key-value store, and request queue all survive the migration unchanged.
+
+This is why you need to save any in-memory state to the key-value store in the `migrating` event handler — so the restarted Actor can read it back and continue from where it left off.
 
 ---
 
@@ -86,13 +88,15 @@ For everyday use, named storage is preferable when you need the data long-term.
 
 **What is data retention, and how does it work for all storage types?**
 
-Data retention is the policy for how long Apify keeps stored data before automatically deleting it. It applies the same way to all storage types:
+Data retention is the policy for how long Apify keeps stored data before automatically deleting it.
 
 | Storage type | What it holds |
 |---|---|
 | Dataset | Structured item lists |
 | Key-value store | Arbitrary files / JSON |
 | Request queue | URLs for crawlers |
+
+Unnamed storages are retained for 7 days after the last write. Named storages persist indefinitely until manually deleted by the owner.
 
 ---
 
@@ -115,7 +119,9 @@ Send it as a JSON body in the POST request when starting a run. That JSON body b
 
 **Do you need to install the `apify-client` npm package when already using the `apify` package?**
 
-In older SDK versions, `apify` included `apify-client` internally. In the current SDK (v3+), `apify-client` is a **separate package** and must be installed independently if you want to use it directly.
+No. The `apify` package (v3+) bundles `apify-client` internally and exposes it via `Actor.apifyClient` — so if you're already using the `apify` package inside an Actor, you don't need to install `apify-client` separately.
+
+You would only need to install `apify-client` as a standalone package if you want to use it outside of an Actor context, for example in a plain Node.js script that calls the Apify API directly.
 
 ---
 
@@ -137,7 +143,7 @@ Yes.
 
 **Based on your experience, is the `apify push` command worth using?**
 
-It's quite useful for solo projects. For team projects, using a Git-based workflow (with CI/CD pipelines, commit history, etc.) is a better option.
+It's quite useful for solo projects and quick iteration during development — you can push and test changes without needing a full Git workflow. However, for team projects it's less ideal because it bypasses code review, CI/CD pipelines, and commit history. In a team setting, a Git-based deployment (e.g. connecting the Actor to a GitHub repo and deploying via CI) is a better option.
 
 ---
 
