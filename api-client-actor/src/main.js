@@ -13,6 +13,7 @@ if (useClient) {
     datasetId = run.defaultDatasetId;
 } else {
     // Use the raw API - start the run
+    const url = `https://api.apify.com/v2/actor-tasks/${TASK_ID}/runs?memory=${memory}`;
     const startRes = await fetch(url, {
         method: 'POST',
         headers: { Authorization: `Bearer ${TOKEN}` },
@@ -27,7 +28,9 @@ if (useClient) {
     let latestData = runData;
     while (status !== 'SUCCEEDED' && status !== 'FAILED') {
         await new Promise((r) => setTimeout(r, 3000));
-        const pollRes = await fetch(`https://api.apify.com/v2/actor-runs/${runId}?token=${TOKEN}`);
+        const pollRes = await fetch(`https://api.apify.com/v2/actor-runs/${runId}`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+        });
         const { data } = await pollRes.json();
         status = data.status;
         latestData = data;
